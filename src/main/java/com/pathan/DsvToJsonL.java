@@ -22,10 +22,9 @@ public class DsvToJsonL {
         return csv;
     }
 
-    List<String> convertData(CSVReader csv) throws IOException, ParseException {
+    void convertData(CSVReader csv, String outputFile) throws IOException, ParseException {
         String[] fieldNames = csv.readNext();
         String[] nextRecord;
-        List<String> result = new ArrayList<>();
         while ((nextRecord = csv.readNext()) != null) {
             Map<String, String> obj = new LinkedHashMap<>();
             for (int i = 0; i < fieldNames.length; i++) {
@@ -36,17 +35,22 @@ public class DsvToJsonL {
                     obj.put(fieldNames[i], nextRecord[i]);
             }
             ObjectMapper mapper = new ObjectMapper();
-            result.add(mapper.writeValueAsString(obj));
+            writeJsonLFile(mapper.writeValueAsString(obj)+"\n", outputFile);
         }
-        return result;
+
     }
 
-    void writeJsonLFile(List<String> result, String destinationFilePath) throws IOException {
-        FileWriter outFile = new FileWriter(destinationFilePath, true);
-        BufferedWriter outStream = new BufferedWriter(outFile);
-        for (int i = 0; i < result.size(); i++) {
-            outStream.write(result.get(i) + "\n");
+    void writeJsonLFile(String result, String destinationFilePath) {
+        File file = new File(destinationFilePath+"\\output.JSONL");
+        try (FileOutputStream fop = new FileOutputStream(file, true)) {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            byte[] contentInBytes = result.getBytes();
+            fop.write(contentInBytes);
+            fop.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        outStream.close();
     }
 }

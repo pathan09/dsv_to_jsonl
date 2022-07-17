@@ -6,6 +6,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="dsv_to_jsonl" />
         <module name="JavaTaskDsvToJsonl" />
       </profile>
     </annotationProcessing>

@@ -7,9 +7,7 @@ import com.opencsv.CSVReaderBuilder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,43 +20,44 @@ class DsvToJsonLTest {
     @Test
     @DisplayName("Read Text File")
     void readTextFile() throws IOException {
-        FileReader filereader = new FileReader(App.sourceFilePath);
-        CSVParser parser = new CSVParserBuilder().withSeparator(App.separator).build();
+        String sourceFilePath = "src/test/resources/input1.txt";
+        FileReader filereader = new FileReader(sourceFilePath);
+        CSVParser parser = new CSVParserBuilder().withSeparator(',').build();
         CSVReader csv = new CSVReaderBuilder(filereader)
                 .withCSVParser(parser)
                 .build();
-        CSVReader csvReader = dsvToJsonL.readTextFile(App.sourceFilePath, App.separator);
+        CSVReader csvReader = dsvToJsonL.readTextFile(sourceFilePath, ',');
         String[] expected = csv.readNext();
         String[] actual = csvReader.readNext();
+        assertEquals(expected[0], actual[0] );
+
+        String sourceFilePath2 = "src/test/resources/input2.txt";
+        filereader = new FileReader(sourceFilePath);
+        parser = new CSVParserBuilder().withSeparator('|').build();
+        csv = new CSVReaderBuilder(filereader)
+                .withCSVParser(parser)
+                .build();
+        csvReader = dsvToJsonL.readTextFile(sourceFilePath2, '|');
+        expected = csv.readNext();
+        actual = csvReader.readNext();
         assertEquals(expected[0], actual[0] );
     }
 
     @Test
     void convertData() throws IOException, ParseException {
-        FileReader filereader = new FileReader(App.sourceFilePath);
-        CSVParser parser = new CSVParserBuilder().withSeparator(App.separator).build();
+        String input1 = "src/test/resources/input1.txt";
+        String input2 = "src/test/resources/input2.txt";
+        String output = "src/test/resources";
+        FileReader filereader = new FileReader(input1);
+        CSVParser parser = new CSVParserBuilder().withSeparator(',').build();
         CSVReader csv = new CSVReaderBuilder(filereader)
                 .withCSVParser(parser)
                 .build();
-        CSVReader csvReader = dsvToJsonL.readTextFile(App.sourceFilePath, App.separator);
-        String expected = csv.readNext()[0];
-        List<String> result = dsvToJsonL.convertData(csvReader);
-        Boolean actual = result.get(0).split(":")[0].contains(expected);
-        assertEquals(Boolean.TRUE, actual);
-    }
+        dsvToJsonL.convertData(csv, output);
 
-    @Test
-    void writeJsonLFile() throws IOException {
-        List<String> data = List.of((new String[]{"hello", "pathan"}));
-        dsvToJsonL.writeJsonLFile(data, App.destinationFilePath+"\\output_test.jsonl");
-
-        FileReader filereader = new FileReader(App.destinationFilePath+"\\output_test.jsonl");
-        CSVReader csv = new CSVReaderBuilder(filereader)
-                .build();
-
-        String actual = csv.readNext()[0];
-
-        assertEquals(data.get(0), actual);
+        File file = new File(output+"\\output.JSONL");
+        assertTrue(file.exists());
 
     }
+
 }
